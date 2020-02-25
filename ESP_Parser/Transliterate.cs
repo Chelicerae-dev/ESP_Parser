@@ -44,12 +44,13 @@ namespace ESP_Parser
                 {"ts", "ц"},
                 {"ch", "ч"},
                 {"sh", "ш"},
+                {"kh", "х" },
                 {"shch", "щ"},
-                //{"", "ъ"}, //TODO: define the letter transliteration
+                {"hard", "ъ"}, //TODO: define the letter transliteration
                 {"y", "ы"},
-                //{"", "ь"}, //TODO: define the letter transliteration
+                {"soft", "ь"}, //TODO: define the letter transliteration
                 //{"", "э"}, //TODO: define the letter transliteration
-                //{"", "ю"}, //TODO: define the letter transliteration
+                {"yu", "ю"}, //TODO: define the letter transliteration
                 {"ya", "я"}
         };
 
