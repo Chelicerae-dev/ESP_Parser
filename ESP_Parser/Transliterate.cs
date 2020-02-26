@@ -24,7 +24,7 @@ namespace ESP_Parser
                 {"g", "г"},
                 {"d", "д"},
                 {"ie", "е"},
-                //{"", "ё"}, //TODO: define the letter transliteration
+                {"io", "ё"}, //TODO: define the letter transliteration
                 {"zh", "ж"},
                 {"z", "з"},
                 {"i", "и"},
@@ -49,7 +49,7 @@ namespace ESP_Parser
                 {"hard", "ъ"}, //TODO: define the letter transliteration
                 {"y", "ы"},
                 {"soft", "ь"}, //TODO: define the letter transliteration
-                //{"", "э"}, //TODO: define the letter transliteration
+                {"e", "э"}, //TODO: define the letter transliteration
                 {"yu", "ю"}, //TODO: define the letter transliteration
                 {"ya", "я"}
         };

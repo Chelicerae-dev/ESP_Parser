@@ -5,14 +5,15 @@ using System.Net;
 using System.Web;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using CsvHelper;
+using System.Globalization;
 
 namespace ESP_Parser
 {
     public class Grubber
     {
-        public void Main(string[] args)
+        public CsvLine Grub(string addr)
         {
-            string addr = "";
             string LoadPage(string url)     //HtmlAgilityPack initial page load module
             {
                 var result = "";
@@ -39,12 +40,12 @@ namespace ESP_Parser
 
             static string address(string addr)
             {
-                string addressTemp = "@'" + addr + "'";
+                string addressTemp = "@" + addr;
                 return addressTemp.ToString();
             }
             
             //string adr = address(addr);
-            var pageContent = LoadPage("@'" + address(addr)+"'");
+            var pageContent = LoadPage(addr);
             var document = new HtmlDocument();  //Creating new page to parse
             document.LoadHtml(pageContent);     //Creating new page to parse
             HtmlNode grubId(string id)          //Guitar-World description node
@@ -69,11 +70,78 @@ namespace ESP_Parser
             }
             var desc = grubId("descr");         //var with "description" part
             string descRes = desc.InnerText;    //useless(?)
-
-
+            ///////////
+            ///
+            string grubPrice(string labelPrice)       //labelPrice = "product-price" for Guitar-World
+            {
+                try //for single span (no discount)
+                {
+                    var nodePrice = document.DocumentNode.SelectSingleNode("//span[@class=\"" + labelPrice + "\"]");
+                    //var nodeSpanPrice = nodePrice.SelectSingleNode("span");
+                    Console.WriteLine(nodePrice);
+                    string textPrice = nodePrice.InnerText;
+                    Console.WriteLine(textPrice);
+                    string temp = Regex.Replace(                  //removing spaces
+                        textPrice, @"\s", "");
+                    return temp.Replace("руб.", "");              //removing letters
+                }
+                catch //for multiple span (discount)
+                {
+                    var nodePrice = document.DocumentNode.SelectSingleNode("//span[@class=\"" + labelPrice + "\"]");
+                    var nodeSpanPrice = nodePrice.SelectSingleNode("span");
+                    Console.WriteLine(nodePrice);
+                    string textPrice = nodePrice.InnerText;
+                    Console.WriteLine(textPrice);
+                    return textPrice;
+                }
+            
+            }
+            string grubModel(string labelModel)       //labelModel = "Артикул:" for Guitar-World
+            {
+                var nodeModel = document.DocumentNode.SelectSingleNode("//div[label='" + labelModel + "']");
+                var nodePModel = nodeModel.SelectSingleNode("p");
+                string textModel = nodePModel.InnerText;
+                Console.WriteLine(textModel);
+                return textModel;
+            }
+            string grubName(string Name)            //Name = "header-for-light" for Guitar-World
+            {
+                var nodeName = document.DocumentNode.SelectSingleNode("//div[@class=\"" + Name + "\"]");
+                var nodeH1Name = nodeName.SelectSingleNode("h1");
+                string nodeHName = nodeH1Name.InnerText;
+                Console.WriteLine(nodeHName);
+                return Regex.Replace(              //removing whitespaces
+                    nodeHName, @"^\s+|\s+$", "");
+            }
+            ///////////
             string brand = grubBrand("Производитель:");         //Getting value for brand
-            string numberOfStrings = grubContent("&Kcy;&ocy;&lcy;&icy;&chcy;&iecy;&scy;&tcy;&vcy;&ocy; &scy;&tcy;&rcy;&ucy;&ncy;"); //Getting value for # of strings variable
-            string body = grubContent("&Kcy;&ocy;&rcy;&pcy;&ucy;&scy;");    //getting value for body wood
+            string numberOfStringsMethod()
+            {
+                try
+                {
+                    string temp = grubContent("&Kcy;&ocy;&lcy;&icy;&chcy;&iecy;&scy;&tcy;&vcy;&ocy; &scy;&tcy;&rcy;&ucy;&ncy;"); //Getting value for # of strings variable
+                    return temp;
+                }
+                catch
+                {
+                    return "6";
+                }
+            }
+            string numberOfStrings = numberOfStringsMethod(); //Assigning value for # of strings variable
+            string bodyMethod()
+            {
+                try
+                {
+                    string temp = grubContent("&Kcy;&ocy;&rcy;&pcy;&ucy;&scy;");    //getting value for body wood
+                    return temp;
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+            
+            string body = bodyMethod();    //Assigning value for body wood
             string topWoodmethod()
             {
                 try
@@ -88,10 +156,46 @@ namespace ESP_Parser
                     return "-";
                 }
             }
-            string topWood = topWoodmethod();
-            string construction = grubContent("&Kcy;&ocy;&ncy;&scy;&tcy;&rcy;&ucy;&kcy;&tscy;&icy;&yacy;");  //Getting value for neck construction
-            string scale = grubContent("&Mcy;&iecy;&ncy;&zcy;&ucy;&rcy;&acy;");         //Getting value for scale lenght
-            string neckWood = grubContent("&Gcy;&rcy;&icy;&fcy;");      //Getting value for neck wood
+            string topWood = topWoodmethod();   //Assigning value for top wood
+            string constructionMethod()
+            {
+                try
+                {
+                    string temp = grubContent("&Kcy;&ocy;&ncy;&scy;&tcy;&rcy;&ucy;&kcy;&tscy;&icy;&yacy;");  //Getting value for neck construction
+                    return temp;
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+            string construction = constructionMethod();  //Assigning value for neck construction
+            string scaleMethod()
+            {
+                try
+                {
+                    string temp = grubContent("&Mcy;&iecy;&ncy;&zcy;&ucy;&rcy;&acy;");         //Getting value for scale lenght
+                    return temp;
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+            string scale = scaleMethod();         //Assigning value for scale lenght
+            string neckwoodMethod()
+            {
+                try
+                {
+                    string temp = grubContent("&Gcy;&rcy;&icy;&fcy;");      //Getting value for neck wood
+                    return temp;
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+            string neckWood = neckwoodMethod();      //Assigning value for neck wood
 
             string fretboardMethod()
             {
@@ -102,31 +206,192 @@ namespace ESP_Parser
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Failed a bit with fretboard node type" + e.Message);
-                    string fretboardTemp = grubContent("&Ncy;&acy;&kcy;&lcy;&acy;&dcy;&kcy;&acy; &ncy;&acy; &gcy;&rcy;&icy;&fcy;");
-                    return fretboardTemp;
+                    {
+                        try
+                        {
+                            Console.WriteLine("Failed a bit with fretboard node type" + e.Message);
+                            string fretboardTemp = grubContent("&Ncy;&acy;&kcy;&lcy;&acy;&dcy;&kcy;&acy; &ncy;&acy; &gcy;&rcy;&icy;&fcy;");
+                            return fretboardTemp;
+                        }
+                        catch
+                        {
+                            return "";
+                        }
+                    }
                 }
             }
-            string fretboard = fretboardMethod();
-
-            string numberOfFrets = grubContent("&Lcy;&acy;&dcy;&ycy;"); //Getting value for number of frets
-            string color = grubContent("&TScy;&vcy;&iecy;&tcy;");         //Getting value for color
-            string bridge = grubContent("&Bcy;&rcy;&icy;&dcy;&zhcy;");        //Getting value for bridge type
-            string pickups1 = grubContent("&Dcy;&acy;&tcy;&chcy;&icy;&kcy; &ucy; &gcy;&rcy;&icy;&fcy;&acy;");       //Getting value for pickups
-            string pickups2 = grubContent("&Dcy;&acy;&tcy;&chcy;&icy;&kcy; &ucy; &bcy;&rcy;&icy;&dcy;&zhcy;&acy;");
-            string controls = grubContent("&Rcy;&ucy;&chcy;&kcy;&icy; &ucy;&pcy;&rcy;&acy;&vcy;&lcy;&iecy;&ncy;&icy;&yacy;");      //Getting value for controls
+            string fretboard = fretboardMethod();   //Assigning value for fretboard wood
+            ///////
+            string name = grubName("header-for-light");        //Name of guitar
+            string price = grubPrice("product-price");
+            string model = grubModel("Артикул:");
+            //////
+            string fretsMethod()
+            {
+                try
+                {
+                    string fretsTemp = grubContent("&Lcy;&acy;&dcy;&ycy;"); //Getting value for number of frets
+                    return fretsTemp;
+                }
+                catch (Exception e)
+                {
+                    string fretsTemp = "";
+                    return fretsTemp;
+                }
+            }
+            string numberOfFrets = fretsMethod(); //Assigning to numberOfFrets
+            string colorMethod()
+            {
+                try
+                {
+                    string colorTemp = grubContent("&TScy;&vcy;&iecy;&tcy;");         //Getting value for color
+                    return colorTemp;
+                }
+                catch
+                {
+                    try
+                    {
+                        Console.WriteLine("Color variant 2");
+                        string colorTemp = grubContent("&TScy;&vcy;&iecy;&tcy; &kcy;&ocy;&rcy;&pcy;&ucy;&scy;&acy;");
+                        return colorTemp;
+                    }
+                    catch
+                    {
+                        return "";
+                    }
+                }
+            }
+            string color = colorMethod();    //Assigning value for color
+            string bridgeMethod()
+            {
+                try
+                {
+                    string bridgeTemp = grubContent("&Bcy;&rcy;&icy;&dcy;&zhcy;");        //Getting value for bridge type
+                    return bridgeTemp;
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+            string bridge = bridgeMethod();        //Assigning value for bridge type
+            string pickups1Method()
+            {
+                try
+                {
+                    string pu1Temp = grubContent("&Dcy;&acy;&tcy;&chcy;&icy;&kcy; &ucy; &gcy;&rcy;&icy;&fcy;&acy;");       //Getting value for neck pickup
+                    return pu1Temp;
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+            string pickups1 = pickups1Method();       //Assigning value for neck pickup
+            string pickups2Method()
+            {
+                try
+                {
+                    string pu2Temp = grubContent("&Dcy;&acy;&tcy;&chcy;&icy;&kcy; &ucy; &bcy;&rcy;&icy;&dcy;&zhcy;&acy;");       //Getting value for bridge pickup
+                    return pu2Temp;
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+            string pickups2 = pickups2Method();     //Assigning value for bridge pickup
+            string controlsMethod()
+            {
+                try
+                {
+                    string controlsTemp = grubContent("&Rcy;&ucy;&chcy;&kcy;&icy; &ucy;&pcy;&rcy;&acy;&vcy;&lcy;&iecy;&ncy;&icy;&yacy;");      //Getting value for controls
+                    return controlsTemp;
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+            string controls = controlsMethod();      //Assigning value for controls
             //string misc = grubContent("");          //Getting value for misc (to be changed?)
 
             Transliterate trans = new Transliterate();   //Initializing Transliterate class for further usage
             Console.WriteLine(trans.MyDecoding(body));   //
             string writePath = "esp.txt";
 
-
-            try
+            CsvLine ToCsv = new CsvLine();
+            ToCsv.name = name;
+            ToCsv.model = model;
+            ToCsv.price = price;
+            ToCsv.categories = "Гитары > Электрогитары"; //для электрогитар
+            ToCsv.quantity = 2;
+            ToCsv.manufacturer = brand;
+            ToCsv.description = "\"" + desc.InnerText + "\"";
+            ToCsv.attributes = @"Количество струн : " + numberOfStrings + "\n" +
+                                    "Материал корпуса : " + trans.MyDecoding(body) + "\n" +   
+                                    "Бренд : " + brand + "\n" +
+                                    "Материал топа : " + trans.MyDecoding(topWood) + "\n" +
+                                    "Крепление грифа : " + trans.MyDecoding(construction) + "\n" +
+                                    "Мензура : " + trans.MyDecoding(scale) + "\n" +
+                                    "Материал грифа : " + trans.MyDecoding(neckWood) + "\n" +
+                                    "Материал накладки : " + trans.MyDecoding(fretboard) + "\n" + 
+                                    "Количество ладов : " + trans.MyDecoding(numberOfFrets) + "\n" + 
+                                    "Цвет : " + trans.MyDecoding(color) + "\n" +
+                                    "Бридж : " + trans.MyDecoding(bridge) + "\n" +
+                                    "Звукосниматели : " + trans.MyDecoding(pickups1) + trans.MyDecoding(pickups2) + "\n" +
+                                    "Органы управления : " + HttpUtility.HtmlDecode(trans.MyDecoding(controls)) + "\n" +
+                                    "Прочее : ";
+            ToCsv.attributes_group = @"гитары
+гитары
+гитары
+гитары
+гитары
+гитары
+гитары
+гитары
+гитары
+гитары
+гитары
+гитары
+гитары
+гитары";
+            ToCsv.options = "";
+            ToCsv.option_type = "";
+            ToCsv.images = "";
+            //IList<CsvLine> records = new List<CsvLine>;
+            //records.Add(ToCsv);
+            CsvLine lister(string addr)
             {
-                using (StreamWriter sw = new StreamWriter(writePath, false, System.Text.Encoding.Default))
+                Grub(addr);
+                return ToCsv;
+            }
+
+            /*sw.Write(name + ";" + model + ";" + price + ";" + "Гитары > Электрогитары;" + "1;" + brand + ";" + HttpUtility.HtmlDecode(descRes) + ";" +
+                                    "Количество струн : " + numberOfStrings + " " +
+                                    "Материал корпуса : " + trans.MyDecoding(body) + " " +
+                                    "Бренд : " + brand + "\"\n\"" +
+                                    "Материал топа : " + trans.MyDecoding(topWood) + " " +
+                                    "Крепление грифа : " + trans.MyDecoding(construction) + "\"\n\"" +
+                                    "Мензура : " + trans.MyDecoding(scale) + "\"\n\"" +
+                                    "Материал грифа : " + trans.MyDecoding(neckWood) + "\"\n\"" +
+                                    "Материал накладки : " + trans.MyDecoding(fretboard) + "\"\n\"" +
+                                    "Количество ладов : " + trans.MyDecoding(numberOfFrets) + "\"\n\"" +
+                                    "Цвет : " + trans.MyDecoding(color) + "\"\n\"" +
+                                    "Бридж : " + trans.MyDecoding(bridge) + "\"\n\"" +
+                                    "Звукосниматели : " + trans.MyDecoding(pickups1) + trans.MyDecoding(pickups2) + "\"\n\"" +
+                                    "Органы управления : " + "\"" + HttpUtility.HtmlDecode(trans.MyDecoding(controls)) + "\"" + "\"\n\"" +
+                                    "Прочее : ;" +
+                                    "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" +
+                                    ";;;");*/
+
+            /*try
+            {
+                using (StreamWriter sw = new StreamWriter("esp.txt", false, System.Text.Encoding.Default))
+                using (var csv = new CsvWriter(sw, CultureInfo.InvariantCulture))
                 {
-                    sw.WriteLine(HttpUtility.HtmlDecode(descRes) + "\n");
+
+                    /*sw.WriteLine(HttpUtility.HtmlDecode(descRes) + "\n");
                     sw.WriteLine("Количество струн : " + numberOfStrings + "\n");
                     sw.WriteLine("Материал корпуса : " + trans.MyDecoding(body));
                     sw.WriteLine("Бренд : " + brand);
@@ -140,14 +405,15 @@ namespace ESP_Parser
                     sw.WriteLine("Бридж : " + trans.MyDecoding(bridge));
                     sw.WriteLine("Звукосниматели : " + trans.MyDecoding(pickups1) + trans.MyDecoding(pickups2));
                     sw.WriteLine("Органы управления : " + HttpUtility.HtmlDecode(trans.MyDecoding(controls)));
-                    sw.WriteLine("Прочее : " /*+ trans.MyDecoding(misc)*/);
+                    sw.WriteLine("Прочее : " /*+ trans.MyDecoding(misc)*);
                     Console.WriteLine("Done");
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-            }           
+            }           */
+            return ToCsv;
         }
         public Grubber(string Addr)
         {
@@ -155,4 +421,7 @@ namespace ESP_Parser
         }
 
     }
+
 }
+
+
