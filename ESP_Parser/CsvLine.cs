@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace ESP_Parser
 {
     public class CsvLine

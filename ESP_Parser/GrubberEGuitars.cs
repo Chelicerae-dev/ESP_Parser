@@ -4,14 +4,52 @@ using System.IO;
 using System.Net;
 using System.Web;
 using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using CsvHelper;
-using System.Globalization;
 
 namespace ESP_Parser
 {
-    public class Grubber
+    public class GrubberEGuitars
     {
+        public string grubImg(string Address)
+        {
+            string LoadPage(string url)     //HtmlAgilityPack initial page load module
+            {
+                var result = "";
+                var request = (HttpWebRequest)WebRequest.Create(url);
+                var response = (HttpWebResponse)request.GetResponse();
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var receiveStream = response.GetResponseStream();
+                    if (receiveStream != null)
+                    {
+                        StreamReader readStream;
+                        if (response.CharacterSet == null)
+                            readStream = new StreamReader(receiveStream);
+                        else
+                            readStream = new StreamReader(receiveStream);
+                        result = readStream.ReadToEnd();
+                        readStream.Close();
+                    }
+                    response.Close();
+                }
+                return result;
+            }
+
+            /*static string address(string addr)    //not needed anymore, but I'll leave it here for a while
+            {
+                string addressTemp = "@" + addr;
+                return addressTemp.ToString();
+            }
+            */
+            var pageContent = LoadPage(Address);
+            var document = new HtmlDocument();  //Creating new page to parse
+            document.LoadHtml(pageContent);     //Creating new page to parse
+            var nodeImgAddr = document.DocumentNode.SelectSingleNode("//a[@data-fancybox-group=\"gallery\"]");
+            string imgLink = "https://www.guitar-world.ru" + nodeImgAddr.Attributes["href"].Value;
+            Console.WriteLine(imgLink);
+            Console.WriteLine(nodeImgAddr.Attributes["href"].Value);
+            return imgLink;
+        }
         public CsvLine Grub(string addr)
         {
             string LoadPage(string url)     //HtmlAgilityPack initial page load module
@@ -38,13 +76,12 @@ namespace ESP_Parser
                 return result;
             }
 
-            static string address(string addr)
+            /*static string address(string addr)    //not needed anymore, but I'll leave it here for a while
             {
                 string addressTemp = "@" + addr;
                 return addressTemp.ToString();
             }
-            
-            //string adr = address(addr);
+            */
             var pageContent = LoadPage(addr);
             var document = new HtmlDocument();  //Creating new page to parse
             document.LoadHtml(pageContent);     //Creating new page to parse
@@ -74,25 +111,39 @@ namespace ESP_Parser
             ///
             string grubPrice(string labelPrice)       //labelPrice = "product-price" for Guitar-World
             {
-                try //for single span (no discount)
+                try  
                 {
                     var nodePrice = document.DocumentNode.SelectSingleNode("//span[@class=\"" + labelPrice + "\"]");
-                    //var nodeSpanPrice = nodePrice.SelectSingleNode("span");
-                    Console.WriteLine(nodePrice);
-                    string textPrice = nodePrice.InnerText;
-                    Console.WriteLine(textPrice);
-                    string temp = Regex.Replace(                  //removing spaces
-                        textPrice, @"\s", "");
-                    return temp.Replace("руб.", "");              //removing letters
+                    var nodeCheck = nodePrice.ChildNodes;
+                    Console.WriteLine(nodeCheck.Count);
+                    Console.WriteLine(nodeCheck);
+                    //Console.WriteLine(nodeCheck.NextSibling.Name);
+                    //Console.WriteLine(nodeCheck.NextSibling.InnerText);
+                    switch (nodeCheck.Count)
+                    {
+                        case 1:
+                            Console.WriteLine(nodePrice);                 //single span (no discount)
+                             string textPrice = nodePrice.InnerText;
+                            Console.WriteLine(textPrice);
+                            string temp = Regex.Replace(                  //removing spaces
+                                textPrice, @"\s", "");
+                            return temp.Replace("руб.", "");              //removing letters
+                            
+                        case 3:                                           //multiple spans (discount)
+                            var nodeSCheck = nodePrice.FirstChild.NextSibling;
+                            string textDPrice = nodeSCheck.InnerText;
+                            Console.WriteLine(textDPrice);
+                            string tempD = Regex.Replace(                  //removing spaces
+                                textDPrice, @"\s", "");
+                            return tempD.Replace("руб.", "");              //removing letters
+                        default:
+                            return "WTF";
+                    }
                 }
-                catch //for multiple span (discount)
+                catch 
                 {
-                    var nodePrice = document.DocumentNode.SelectSingleNode("//span[@class=\"" + labelPrice + "\"]");
-                    var nodeSpanPrice = nodePrice.SelectSingleNode("span");
-                    Console.WriteLine(nodePrice);
-                    string textPrice = nodePrice.InnerText;
-                    Console.WriteLine(textPrice);
-                    return textPrice;
+                    Console.WriteLine("Unable to grub price!");
+                    return "";
                 }
             
             }
@@ -113,6 +164,15 @@ namespace ESP_Parser
                 return Regex.Replace(              //removing whitespaces
                     nodeHName, @"^\s+|\s+$", "");
             }
+            string grubImg(string ImgAddr)
+            {
+                var nodeImgAddr = document.DocumentNode.SelectSingleNode("//a[@data-fancybox-group=\"" + ImgAddr + "\"]");
+                string imgLink = "https://www.guitar-world.ru" + nodeImgAddr.Attributes["href"].Value;
+                Console.WriteLine(imgLink);
+                Console.WriteLine(nodeImgAddr.Attributes["href"].Value);
+                return imgLink;
+            }
+
             ///////////
             string brand = grubBrand("Производитель:");         //Getting value for brand
             string numberOfStringsMethod()
@@ -233,7 +293,7 @@ namespace ESP_Parser
                     string fretsTemp = grubContent("&Lcy;&acy;&dcy;&ycy;"); //Getting value for number of frets
                     return fretsTemp;
                 }
-                catch (Exception e)
+                catch
                 {
                     string fretsTemp = "";
                     return fretsTemp;
@@ -315,11 +375,41 @@ namespace ESP_Parser
             }
             string controls = controlsMethod();      //Assigning value for controls
             //string misc = grubContent("");          //Getting value for misc (to be changed?)
-
+            string imageTemp = model.Replace(" ", "").Replace("/", "");
+                //Regex.Replace(                  //creating temporary image variable and removing spaces
+                  //              model, @"\s+\/", "");
+            string image = imageTemp + ".png";
             Transliterate trans = new Transliterate();   //Initializing Transliterate class for further usage
-            Console.WriteLine(trans.MyDecoding(body));   //
-            string writePath = "esp.txt";
-
+            //Console.WriteLine(trans.MyDecoding(body));   //
+            string imageAddr()
+            {
+                try
+                {
+                    string temp = grubImg("gallery");
+                    return temp;
+                }
+                catch
+                {
+                    Console.WriteLine("Unable to grub img");
+                    return "";
+                }
+            }
+            string imageAddress = imageAddr();
+            Console.WriteLine(imageAddress);
+            /*
+            try
+            {
+                using (WebClient client = new WebClient())
+                {
+                    client.DownloadFile(imageAddress, @"/Users/olimpinz/Projects/ESP_Parser/ESP_Parser/bin/Debug/netcoreapp3.1/img/" + model + ".png");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to download image");
+                Console.WriteLine(e.Message);
+            }
+            */
             CsvLine ToCsv = new CsvLine();
             ToCsv.name = name;
             ToCsv.model = model;
@@ -327,7 +417,7 @@ namespace ESP_Parser
             ToCsv.categories = "Гитары > Электрогитары"; //для электрогитар
             ToCsv.quantity = 2;
             ToCsv.manufacturer = brand;
-            ToCsv.description = "\"" + desc.InnerText + "\"";
+            ToCsv.description = desc.InnerText;
             ToCsv.attributes = @"Количество струн : " + numberOfStrings + "\n" +
                                     "Материал корпуса : " + trans.MyDecoding(body) + "\n" +   
                                     "Бренд : " + brand + "\n" +
@@ -358,64 +448,15 @@ namespace ESP_Parser
 гитары";
             ToCsv.options = "";
             ToCsv.option_type = "";
-            ToCsv.images = "";
-            //IList<CsvLine> records = new List<CsvLine>;
-            //records.Add(ToCsv);
+            ToCsv.images = "/catalog/eguitars/" + image;
             CsvLine lister(string addr)
             {
                 Grub(addr);
                 return ToCsv;
             }
-
-            /*sw.Write(name + ";" + model + ";" + price + ";" + "Гитары > Электрогитары;" + "1;" + brand + ";" + HttpUtility.HtmlDecode(descRes) + ";" +
-                                    "Количество струн : " + numberOfStrings + " " +
-                                    "Материал корпуса : " + trans.MyDecoding(body) + " " +
-                                    "Бренд : " + brand + "\"\n\"" +
-                                    "Материал топа : " + trans.MyDecoding(topWood) + " " +
-                                    "Крепление грифа : " + trans.MyDecoding(construction) + "\"\n\"" +
-                                    "Мензура : " + trans.MyDecoding(scale) + "\"\n\"" +
-                                    "Материал грифа : " + trans.MyDecoding(neckWood) + "\"\n\"" +
-                                    "Материал накладки : " + trans.MyDecoding(fretboard) + "\"\n\"" +
-                                    "Количество ладов : " + trans.MyDecoding(numberOfFrets) + "\"\n\"" +
-                                    "Цвет : " + trans.MyDecoding(color) + "\"\n\"" +
-                                    "Бридж : " + trans.MyDecoding(bridge) + "\"\n\"" +
-                                    "Звукосниматели : " + trans.MyDecoding(pickups1) + trans.MyDecoding(pickups2) + "\"\n\"" +
-                                    "Органы управления : " + "\"" + HttpUtility.HtmlDecode(trans.MyDecoding(controls)) + "\"" + "\"\n\"" +
-                                    "Прочее : ;" +
-                                    "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" + "гитары\"\n\"" +
-                                    ";;;");*/
-
-            /*try
-            {
-                using (StreamWriter sw = new StreamWriter("esp.txt", false, System.Text.Encoding.Default))
-                using (var csv = new CsvWriter(sw, CultureInfo.InvariantCulture))
-                {
-
-                    /*sw.WriteLine(HttpUtility.HtmlDecode(descRes) + "\n");
-                    sw.WriteLine("Количество струн : " + numberOfStrings + "\n");
-                    sw.WriteLine("Материал корпуса : " + trans.MyDecoding(body));
-                    sw.WriteLine("Бренд : " + brand);
-                    sw.WriteLine("Материал топа : " + trans.MyDecoding(topWood));
-                    sw.WriteLine("Крепление грифа : " + trans.MyDecoding(construction));
-                    sw.WriteLine("Мензура : " + trans.MyDecoding(scale));
-                    sw.WriteLine("Материал грифа : " + trans.MyDecoding(neckWood));
-                    sw.WriteLine("Материал накладки : " + trans.MyDecoding(fretboard));
-                    sw.WriteLine("Количество ладов : " + trans.MyDecoding(numberOfFrets));
-                    sw.WriteLine("Цвет : " + trans.MyDecoding(color));
-                    sw.WriteLine("Бридж : " + trans.MyDecoding(bridge));
-                    sw.WriteLine("Звукосниматели : " + trans.MyDecoding(pickups1) + trans.MyDecoding(pickups2));
-                    sw.WriteLine("Органы управления : " + HttpUtility.HtmlDecode(trans.MyDecoding(controls)));
-                    sw.WriteLine("Прочее : " /*+ trans.MyDecoding(misc)*);
-                    Console.WriteLine("Done");
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }           */
             return ToCsv;
         }
-        public Grubber(string Addr)
+        public GrubberEGuitars(string Addr)
         {
             string addr = Addr;
         }

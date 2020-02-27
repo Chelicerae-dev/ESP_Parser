@@ -7,14 +7,6 @@ namespace ESP_Parser
 {
     public class Transliterate
     {
-        /*static string body;
-        private string transliteratedText = Regex.Replace(
-               body,
-             @"&(?<letter>[A-Za-z]+)cy;",
-               m => m.Groups["letter"].Value);
-
-        //Console.WriteLine(transliteratedText);*/
-        ///////////////////////
         protected static Dictionary<string, string> translit =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -24,7 +16,7 @@ namespace ESP_Parser
                 {"g", "г"},
                 {"d", "д"},
                 {"ie", "е"},
-                {"io", "ё"}, //TODO: define the letter transliteration
+                {"io", "ё"},
                 {"zh", "ж"},
                 {"z", "з"},
                 {"i", "и"},
@@ -46,11 +38,11 @@ namespace ESP_Parser
                 {"sh", "ш"},
                 {"kh", "х" },
                 {"shch", "щ"},
-                {"hard", "ъ"}, //TODO: define the letter transliteration
+                {"hard", "ъ"},
                 {"y", "ы"},
-                {"soft", "ь"}, //TODO: define the letter transliteration
-                {"e", "э"}, //TODO: define the letter transliteration
-                {"yu", "ю"}, //TODO: define the letter transliteration
+                {"soft", "ь"},
+                {"e", "э"},
+                {"yu", "ю"},
                 {"ya", "я"}
         };
 
