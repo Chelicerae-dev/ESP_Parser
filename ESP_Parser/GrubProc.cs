@@ -52,7 +52,7 @@ namespace ESP_Parser
                                 {
                                     using (WebClient client = new WebClient())
                                     {
-                                        client.DownloadFile(img, @"/Users/olimpinz/Projects/ESP_Parser/ESP_Parser/bin/Debug/netcoreapp3.1/img/" + model.Replace(" ", "").Replace("/", "") + ".png");
+                                        client.DownloadFile(img, @"/Users/olimpinz/Projects/ESP_Parser/ESP_Parser/bin/Debug/netcoreapp3.1/eguitars/" + model.Replace(" ", "").Replace("/", "") + ".png");
                                     }
                                 }
                                 catch (Exception e)
@@ -71,7 +71,88 @@ namespace ESP_Parser
                     }
                     WriteCsv("EGuitars");
                     break;
-                //case "guitar amps":
+                case "ebass":
+                    Console.WriteLine("Selected electric basses. Time to grub!");
+
+                    try
+                    {
+                        using (StreamReader sr = new StreamReader("EBassLinks.txt"))
+                        {
+                            int count = 1;
+                            string line;
+                            while ((line = sr.ReadLine()) != null)
+                            {
+                                GrubberEBass grubber = new GrubberEBass(line);
+                                Console.WriteLine(count);
+                                count++;
+                                Console.WriteLine(line);
+                                records.Add(grubber.Grub(line));
+                                string model = grubber.Grub(line).model;
+                                string img = grubber.grubImg(line);
+                                try
+                                {
+                                    using (WebClient client = new WebClient())
+                                    {
+                                        client.DownloadFile(img, @"/Users/olimpinz/Projects/ESP_Parser/ESP_Parser/bin/Debug/netcoreapp3.1/ebass/" + model.Replace(" ", "").Replace("/", "") + ".png");
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine("Unable to download image");
+                                    Console.WriteLine(e.Message);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        Console.WriteLine("Error reading file");
+                        throw;
+                    }
+                    WriteCsv("EBass");
+                    break;
+                case "ls":
+                    Console.WriteLine("Selected loudspeaker systems. Time to grub!");
+
+                    try
+                    {
+                        using (StreamReader sr = new StreamReader("LSLinks.txt"))
+                        {
+                            int count = 1;
+                            string line;
+                            while ((line = sr.ReadLine()) != null)
+                            {
+                                GrubberLoudspeakers grubber = new GrubberLoudspeakers(line);
+                                Console.WriteLine(count);
+                                count++;
+                                Console.WriteLine(line);
+                                records.Add(grubber.Grub(line));
+                                string model = grubber.Grub(line).model;
+                                string img = grubber.grubImg(line);
+                                try
+                                {
+                                    using (WebClient client = new WebClient())
+                                    {
+                                        client.DownloadFile(img, @"/Users/olimpinz/Projects/ESP_Parser/ESP_Parser/bin/Debug/netcoreapp3.1/ls/" + model.Replace(" ", "").Replace("/", "") + ".png");
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine("Unable to download image");
+                                    Console.WriteLine(e.Message);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        Console.WriteLine("Error reading file");
+                        throw;
+                    }
+                    WriteCsv("LS");
+                    break;
 
             }
 
