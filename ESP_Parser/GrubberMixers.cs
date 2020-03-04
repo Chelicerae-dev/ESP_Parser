@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 
 namespace ESP_Parser
@@ -100,7 +101,7 @@ namespace ESP_Parser
                 int i = 0;
                 foreach (HtmlNode count in SpecName)
                 {
-                    grubSpecs.Add(SpecName[i].InnerText + " : " + SpecValue[i].InnerText);
+                    grubSpecs.Add(Regex.Replace(SpecName[i].InnerText, @"^\s+|\s+$|\n", "") + " : " + Regex.Replace(SpecValue[i].InnerText, @"^\s+|\s+$|\n", ""));
                     i++;
                 }
             }
