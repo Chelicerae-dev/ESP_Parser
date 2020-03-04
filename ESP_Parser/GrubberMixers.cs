@@ -3,11 +3,12 @@ using HtmlAgilityPack;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 
 namespace ESP_Parser
 {
-    public class GrubberLoudspeakers
+    public class GrubberMixers
     {
         public string grubImg(string Address)
         {
@@ -54,26 +55,26 @@ namespace ESP_Parser
         {
             string LoadPage(string url)     //HtmlAgilityPack initial page load module
             {
-                    var result = "";
-                    var request = (HttpWebRequest)WebRequest.Create(url);
-                    var response = (HttpWebResponse)request.GetResponse();
-                    Console.WriteLine("Current content link is " + url);
-                    if (response.StatusCode == HttpStatusCode.OK)
+                var result = "";
+                var request = (HttpWebRequest)WebRequest.Create(url);
+                var response = (HttpWebResponse)request.GetResponse();
+                Console.WriteLine("Current content link is " + url);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var receiveStream = response.GetResponseStream();
+                    if (receiveStream != null)
                     {
-                        var receiveStream = response.GetResponseStream();
-                        if (receiveStream != null)
-                        {
-                            StreamReader readStream;
-                            if (response.CharacterSet == null)
-                                readStream = new StreamReader(receiveStream);
-                            else
-                                readStream = new StreamReader(receiveStream);
-                            result = readStream.ReadToEnd();
-                            readStream.Close();
-                        }
-                        response.Close();
+                        StreamReader readStream;
+                        if (response.CharacterSet == null)
+                            readStream = new StreamReader(receiveStream);
+                        else
+                            readStream = new StreamReader(receiveStream);
+                        result = readStream.ReadToEnd();
+                        readStream.Close();
                     }
-                    return result;
+                    response.Close();
+                }
+                return result;
             }
 
             /*static string address(string addr)    //not needed anymore, but I'll leave it here for a while
@@ -90,7 +91,42 @@ namespace ESP_Parser
                 var grubberId = document.DocumentNode.SelectSingleNode("//div[@id=\"" + id + "\"]");
                 return grubberId;
             }
-            string grubContent(string content)  //Guitar-World node selector by content
+            ////// Full specs table below
+            List<string> grubSpecs = new List<string>();    //making list for all specs availible (which are different at every page
+            {
+                var TableNode = document.DocumentNode.SelectSingleNode("//table[@class=\"shop_attributes\"]").SelectSingleNode("tbody");
+                var SpecName = TableNode.SelectNodes("tr/td[@itemprop=\"name\"]");
+                var SpecValue = TableNode.SelectNodes("tr/td[@itemprop=\"value\"]");
+                int i = 0;
+                foreach (HtmlNode count in SpecName)
+                {
+                    grubSpecs.Add(SpecName[i].InnerText + " : " + SpecValue[i].InnerText);
+                    i++;
+                }
+            }
+            string Specs()  //turning specs list into string
+            {
+                string SpecsTemp = "";
+                int SpecCount = 0;
+                foreach (string spec in grubSpecs)
+                {
+                    SpecsTemp += spec + "\n";
+                    SpecCount++;
+                }
+                return SpecsTemp;
+            }
+            string attr_group()
+            {
+                int i = 0;
+                string temp = "";
+                foreach (string spec in grubSpecs)
+                {
+                    temp += "\n Микшеры";
+                }
+                return temp;
+
+            }
+            string grubContent(string content)  // node selector by content
             {
                 var nodeContent = document.DocumentNode.SelectSingleNode("//tr[td=\"" + content + "\"]");
                 var nodeMed = nodeContent.LastChild;
@@ -106,7 +142,7 @@ namespace ESP_Parser
                 return nodeBrand.InnerText;
             }
             var desc = grubId("tab-fullDescriptionProd");         //var with "description" part
-                                                ///////////
+                                                                  ///////////
             ///
             string grubPrice()       //itemprop = "price" for Amplifier.ru
             {
@@ -315,7 +351,7 @@ namespace ESP_Parser
                 }
             }
             string response = responseMethod();   //Assigning value for response
-                                                    ///////
+                                                  ///////
             string name = grubName();        //Name of system
             string price = grubPrice();      //Price
             string model = grubModel();      //Model
@@ -426,7 +462,7 @@ namespace ESP_Parser
                     try
                     {
                         string temp = grubContent("&Ncy;&CHcy; &icy;&zcy;&lcy;&ucy;&chcy;&acy;&tcy;&iecy;&lcy;&softcy;");
-                        return temp; 
+                        return temp;
                     }
                     catch
                     {
@@ -469,45 +505,19 @@ namespace ESP_Parser
                 }
             }
             string imageAddress = imageAddr();
+
+
             Console.WriteLine(imageAddress);
             CsvLine ToCsv = new CsvLine();
             ToCsv.name = name;
             ToCsv.model = model;
             ToCsv.price = price.Replace(" ", "").Replace("р.", "");
-            ToCsv.categories = "Гитары > Бас-гитары"; //для бас-гитар
+            ToCsv.categories = "Звуковое оборудование > Микшеры"; //для микшеров
             ToCsv.quantity = 2;
             ToCsv.manufacturer = brand;
             ToCsv.description = desc.InnerHtml;
-            ToCsv.attributes = @"Усилитель : " + trans.MyDecoding(amp) + "\n" +
-                                    "Мощность : " + trans.MyDecoding(power) + "\n" +
-                                    "Динамики : " + trans.MyDecoding(speaker1) + " " + trans.MyDecoding(speaker2) +  "\n" +
-                                    "Бренд : " + brand + "\n" +
-                                    "Частотный диапазон : " + trans.MyDecoding(response) + "\n" +
-                                    "Входы : " + trans.MyDecoding(input) + "\n" +
-                                    "Выходы : " + trans.MyDecoding(output) + "\n" +
-                                    "Сопротивление : " + trans.MyDecoding(ohm) + "\n" +
-                                    "Максимальный УЗД/SPL : " + trans.MyDecoding(spl) + "\n" +
-                                    "Чувствительность : " + trans.MyDecoding(sens) + "\n" +
-                                    "Габариты : " + trans.MyDecoding(dim) + "\n" +
-                                    "Вес : " + trans.MyDecoding(weight) + "\n" +
-                                //    "Бридж : " + trans.MyDecoding(bridge) + "\n" +
-                                //    "Звукосниматели : " + trans.MyDecoding(pickups1) + trans.MyDecoding(pickups2) + "\n" +
-                                //    "Органы управления : " + HttpUtility.HtmlDecode(trans.MyDecoding(controls)) + "\n" +
-                                    "Прочее : ";
-            ToCsv.attributes_group = @"Акустические системы
-Акустические системы
-Акустические системы
-Акустические системы
-Акустические системы
-Акустические системы
-Акустические системы
-Акустические системы
-Акустические системы
-Акустические системы
-Акустические системы
-Акустические системы
-Акустические системы
-Акустические системы";
+            ToCsv.attributes = trans.MyDecoding(Specs());
+            ToCsv.attributes_group = attr_group();
             ToCsv.options = "";
             ToCsv.option_type = "";
             ToCsv.images = "/catalog/ls/" + image;
@@ -518,7 +528,7 @@ namespace ESP_Parser
             }
             return ToCsv;
         }
-        public GrubberLoudspeakers(string Addr)
+        public GrubberMixers(string Addr)
         {
             string addr = Addr;
         }

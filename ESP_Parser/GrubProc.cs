@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Web;
 using System.Net;
 
-
 namespace ESP_Parser
 {
     public class GrubProc
@@ -124,12 +123,13 @@ namespace ESP_Parser
                             while ((line = sr.ReadLine()) != null)
                             {
                                 GrubberLoudspeakers grubber = new GrubberLoudspeakers(line);
-                                Console.WriteLine(count);
+                                Console.WriteLine("-------------------" + count + "--------------------");
                                 count++;
                                 Console.WriteLine(line);
                                 records.Add(grubber.Grub(line));
                                 string model = grubber.Grub(line).model;
                                 string img = grubber.grubImg(line);
+                                Console.WriteLine("Model is " + model + " and it goes to img");
                                 try
                                 {
                                     using (WebClient client = new WebClient())
@@ -141,6 +141,17 @@ namespace ESP_Parser
                                 {
                                     Console.WriteLine("Unable to download image");
                                     Console.WriteLine(e.Message);
+                                    try
+                                    {
+                                        using (StreamWriter sw = new StreamWriter("imgLinks.txt", append: true))
+                                        {
+                                            sw.WriteLine(img);
+                                        }
+                                    }
+                                    catch (Exception f)
+                                    {
+                                        Console.WriteLine(f.Message);
+                                    }
                                 }
                             }
                         }
@@ -152,6 +163,59 @@ namespace ESP_Parser
                         throw;
                     }
                     WriteCsv("LS");
+                    break;
+                case "mixers":
+                    Console.WriteLine("Selected mixers. Time to grub!");
+
+                    try
+                    {
+                        using (StreamReader sr = new StreamReader("MixersLinks.txt"))
+                        {
+                            int count = 1;
+                            string line;
+                            while ((line = sr.ReadLine()) != null)
+                            {
+                                GrubberMixers grubber = new GrubberMixers(line);
+                                Console.WriteLine("-------------------" + count + "--------------------");
+                                count++;
+                                Console.WriteLine(line);
+                                records.Add(grubber.Grub(line));
+                                string model = grubber.Grub(line).model;
+                                string img = grubber.grubImg(line);
+                                Console.WriteLine("Model is " + model + " and it goes to img");
+                                try
+                                {
+                                    using (WebClient client = new WebClient())
+                                    {
+                                        client.DownloadFile(img, @"/Users/olimpinz/Projects/ESP_Parser/ESP_Parser/bin/Debug/netcoreapp3.1/mixers/" + model.Replace(" ", "").Replace("/", "") + ".png");
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine("Unable to download image");
+                                    Console.WriteLine(e.Message);
+                                    try
+                                    {
+                                        using (StreamWriter sw = new StreamWriter("imgLinks.txt", append: true))
+                                        {
+                                            sw.WriteLine(img);
+                                        }
+                                    }
+                                    catch (Exception f)
+                                    {
+                                        Console.WriteLine(f.Message);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        Console.WriteLine("Error reading file");
+                        throw;
+                    }
+                    WriteCsv("Mixers");
                     break;
 
             }
