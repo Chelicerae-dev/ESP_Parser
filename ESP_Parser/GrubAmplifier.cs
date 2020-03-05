@@ -160,7 +160,7 @@ namespace ESP_Parser
             Transliterate trans = new Transliterate();   //Initializing Transliterate class for further usage
             temp[0] = grubName();
             temp[1] = grubModel();
-            temp[2] = Regex.Replace(grubPrice(), @"\s|\.р", "");
+            temp[2] = Regex.Replace(grubPrice(), @"\s|р\.", "");
             temp[3] = brand;
             if (feat != null)
             {
