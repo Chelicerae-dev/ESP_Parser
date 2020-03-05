@@ -9,55 +9,15 @@ using System.Collections.Generic;
 
 namespace ESP_Parser
 {
-    public class GrubberMixers
+    public class GrubAmplifier
     {
-        public string grubImg(string Address)
+        public string addr { get; set; }
+        string LoadPage(string addr)     //HtmlAgilityPack initial page load module
         {
-            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11;
-            string LoadPage(string url)     //HtmlAgilityPack initial page load module
-            {
-                try
-                {
-                    var result = "";
-                    var request = (HttpWebRequest)WebRequest.Create(url);
-                    var response = (HttpWebResponse)request.GetResponse();
-                    Console.WriteLine("Link for image is " + url);
-                    if (response.StatusCode == HttpStatusCode.OK)
-                    {
-                        var receiveStream = response.GetResponseStream();
-                        if (receiveStream != null)
-                        {
-                            StreamReader readStream;
-                            if (response.CharacterSet == null)
-                                readStream = new StreamReader(receiveStream);
-                            else
-                                readStream = new StreamReader(receiveStream);
-                            result = readStream.ReadToEnd();
-                            readStream.Close();
-                        }
-                        response.Close();
-                    }
-                    return result;
-                }
-                catch
-                {
-                    throw;
-                }
-            }
-            var pageContent = LoadPage(Address);
-            var document = new HtmlDocument();  //Creating new page to parse
-            document.LoadHtml(pageContent);     //Creating new page to parse
-            var nodeImgAddr = document.DocumentNode.SelectSingleNode("//img[@class=\"image_0\"]");
-            string imgLink = "https://www.amplifier.ru" + nodeImgAddr.GetAttributeValue("src", "default");
-            //Console.WriteLine(imgLink + "is imgLink");
-            return imgLink;
-        }
-        public virtual CsvLine Grub(string addr)
-        {
-            string LoadPage(string url)     //HtmlAgilityPack initial page load module
+            try
             {
                 var result = "";
-                var request = (HttpWebRequest)WebRequest.Create(url);
+                var request = (HttpWebRequest)WebRequest.Create(addr);
                 var response = (HttpWebResponse)request.GetResponse();
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -76,15 +36,36 @@ namespace ESP_Parser
                 }
                 return result;
             }
+            catch
+            {
+                throw;
+            }
+        }
+        public string Category { get; set; }     //Goods category 
+        public string AttrGroup { get; set; }    //goes to Attributes_Group in CSV
+        public string imgPath { get; set; }         //goes to image path in csv
+        public string grubImg(string addr)
+        {
             var pageContent = LoadPage(addr);
             var document = new HtmlDocument();  //Creating new page to parse
             document.LoadHtml(pageContent);     //Creating new page to parse
+            var nodeImgAddr = document.DocumentNode.SelectSingleNode("//img[@class=\"image_0\"]");
+            string imgLink = "https://www.amplifier.ru" + nodeImgAddr.GetAttributeValue("src", "default");
+            return imgLink;
+        }
+        public string[] Grub() 
+        {
+            string[] temp = new string[8];
+            var pageContent = LoadPage(addr);
+            var document = new HtmlDocument();  //Creating new page to parse
+            document.LoadHtml(pageContent);     //Creating new page to parse
+
             HtmlNode grubId(string id)          //Guitar-World description node
             {
                 var grubberId = document.DocumentNode.SelectSingleNode("//div[@id=\"" + id + "\"]");
                 return grubberId;
             }
-            ////// Full specs table below
+                       ////// Full specs table below
             List<string> grubSpecs = new List<string>();    //making list for all specs availible (which are different at every page
             {
                 try
@@ -115,28 +96,20 @@ namespace ESP_Parser
                 }
                 return SpecsTemp;
             }
-            string attr_group()
+            string attr_group()     //making Attribute_group
             {
                 int i = 0;
                 string temp = "";
                 foreach (string spec in grubSpecs)
                 {
-                    temp += "\n Микшеры";
+                    temp += "\n " + AttrGroup;
                 }
                 return temp;
-
             }
-            string grubContent(string content)  // node selector by content
-            {
-                var nodeContent = document.DocumentNode.SelectSingleNode("//tr[td=\"" + content + "\"]");
-                var nodeMed = nodeContent.LastChild;
-                string nodeValue = nodeMed.InnerText;
-                return nodeValue;
-            }
-            string grubBrand()       //labelBrand = "Производитель:" for Guitar-World
+            string grubBrand()       //getting brand
             {
                 var nodeBrand = document.DocumentNode.SelectSingleNode("//b[@id=\"prodbrand\"]");
-                Console.WriteLine(nodeBrand.InnerText);
+                //Console.WriteLine(nodeBrand.InnerText);
                 return nodeBrand.InnerText;
             }
             var desc = grubId("tab-fullDescriptionProd");         //var with "description" part
@@ -152,7 +125,7 @@ namespace ESP_Parser
                     return null;
                 }
             }
-                var feat = featMethod();
+            var feat = featMethod();
             string grubPrice()       //itemprop = "price" for Amplifier.ru
             {
                 try
@@ -170,82 +143,57 @@ namespace ESP_Parser
             string grubModel()       //itemprop = "model" for Amplifier
             {
                 var nodeModel = document.DocumentNode.SelectSingleNode("//span[@itemprop=\"model\"]");
-                Console.WriteLine(nodeModel.InnerText);
+                //Console.WriteLine(nodeModel.InnerText);
                 return nodeModel.InnerText;
             }
             string grubName()            //h1 id = "prodtitle" for Amplifier
             {
                 var nodeName = document.DocumentNode.SelectSingleNode("//h1[@id=\"prodtitle\"]");
-                Console.WriteLine(nodeName.InnerText);
+                //Console.WriteLine(nodeName.InnerText);
                 return Regex.Replace(              //removing whitespaces
                     nodeName.InnerText, @"^\s+|\s+$", "");
             }
-            string grubImgTemp()
-            {
-                var nodeImgAddr = document.DocumentNode.SelectSingleNode("//img[@class=\"image_0\"]");
-                string imgLink = "https://www.amplifier.ru" + nodeImgAddr.Attributes["src"].Value;
-                Console.WriteLine(imgLink);
-                return imgLink;
-            }
-
             ///////////
             string brand = grubBrand();         //Getting value for brand
             string imageTemp = Regex.Replace(grubModel(), @"\s|\/", ""); //model.Replace(" ", "").Replace("/", "");
             string image = imageTemp + ".png";
             Transliterate trans = new Transliterate();   //Initializing Transliterate class for further usage
-                                                         //Console.WriteLine(trans.MyDecoding(body));   //
-            string imageAddr()
-            {
-                try
-                {
-                    string temp = grubImgTemp();
-                    return temp;
-                }
-                catch
-                {
-                    Console.WriteLine("Unable to grub img");
-                    return "";
-                }
-            }
-            string imageAddress = imageAddr();
-
-            CsvLine ToCsv = new CsvLine();
-            ToCsv.name = grubName();
-            ToCsv.model = grubModel();
-            ToCsv.price = grubPrice().Replace(" ", "").Replace("р.", "");
-            ToCsv.categories = "Звуковое оборудование > Микшеры"; //для микшеров
-            ToCsv.quantity = 2;
-            ToCsv.manufacturer = brand;
+            temp[0] = grubName();
+            temp[1] = grubModel();
+            temp[2] = Regex.Replace(grubPrice(), @"\s|\.р", "");
+            temp[3] = brand;
             if (feat != null)
             {
-                ToCsv.description = desc.InnerHtml + "\n<h3>Особенности</h3>\n" + feat.InnerHtml;
+                temp[4] = desc.InnerHtml + "\n<h3>Особенности</h3>\n" + feat.InnerHtml;
             }
-            else
+            else;
             {
-                ToCsv.description = desc.InnerHtml;
+                temp[4] = desc.InnerHtml;
             }
-            if (Specs() != null)
+            temp[5] = (Specs() != null) ? trans.MyDecoding(Specs()) : "";
+            temp[6] = attr_group();
+            temp[7] = image;
+            return temp;
+        }
+            public CsvLine WriteCsv()
             {
-                ToCsv.attributes = trans.MyDecoding(Specs());
-            }
-            else
-            {
-                ToCsv.attributes = "";
-            }
-            ToCsv.attributes_group = attr_group();
-            ToCsv.options = "";
-            ToCsv.option_type = "";
-            ToCsv.images = "/catalog/mixers/" + image;
-            CsvLine lister(string addr)
-            {
-                Grub(addr);
+                CsvLine ToCsv = new CsvLine();
+                ToCsv.name = Grub()[0];
+                ToCsv.model = Grub()[1];
+                ToCsv.price = Grub()[2];
+                ToCsv.categories = Category; //для микшеров
+                ToCsv.quantity = 2;
+                ToCsv.manufacturer = Grub()[3];
+                ToCsv.description = Grub()[4];
+                ToCsv.attributes = Grub()[5];
+                ToCsv.attributes_group = Grub()[6];
+                ToCsv.options = "";
+                ToCsv.option_type = "";
+                ToCsv.images = "/catalog/" + imgPath + "/" + Grub()[7];
                 return ToCsv;
             }
-            return ToCsv;
-        }
-        public GrubberMixers(string Addr)
+        public GrubAmplifier()
         {
-            string addr = Addr;
         }
     }
 }

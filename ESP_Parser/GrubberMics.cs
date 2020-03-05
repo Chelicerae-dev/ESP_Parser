@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace ESP_Parser
 {
-    public class GrubberMixers
+    public class GrubberMics
     {
         public string grubImg(string Address)
         {
@@ -121,7 +121,7 @@ namespace ESP_Parser
                 string temp = "";
                 foreach (string spec in grubSpecs)
                 {
-                    temp += "\n Микшеры";
+                    temp += "\n Микрофоны";
                 }
                 return temp;
 
@@ -152,7 +152,7 @@ namespace ESP_Parser
                     return null;
                 }
             }
-                var feat = featMethod();
+            var feat = featMethod();
             string grubPrice()       //itemprop = "price" for Amplifier.ru
             {
                 try
@@ -213,7 +213,7 @@ namespace ESP_Parser
             ToCsv.name = grubName();
             ToCsv.model = grubModel();
             ToCsv.price = grubPrice().Replace(" ", "").Replace("р.", "");
-            ToCsv.categories = "Звуковое оборудование > Микшеры"; //для микшеров
+            ToCsv.categories = "Микрофоны"; //для микрофонов
             ToCsv.quantity = 2;
             ToCsv.manufacturer = brand;
             if (feat != null)
@@ -235,7 +235,7 @@ namespace ESP_Parser
             ToCsv.attributes_group = attr_group();
             ToCsv.options = "";
             ToCsv.option_type = "";
-            ToCsv.images = "/catalog/mixers/" + image;
+            ToCsv.images = "/catalog/mics/" + image;
             CsvLine lister(string addr)
             {
                 Grub(addr);
@@ -243,7 +243,7 @@ namespace ESP_Parser
             }
             return ToCsv;
         }
-        public GrubberMixers(string Addr)
+        public GrubberMics(string Addr)
         {
             string addr = Addr;
         }
