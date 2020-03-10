@@ -72,8 +72,125 @@ namespace ESP_Parser
                                 grubber.AttrGroup = "Студийные мониторы";
                                 grubber.imgPath = selected;
                                 break;
-                            default:
+                            case "egc":
+                                grubber.Category = "Всё для гитар > Гитарные комбо";
+                                grubber.AttrGroup = "Гитарное усиление";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Electric guitar combos from guitar-world");
                                 break;
+                            case "egh":
+                                grubber.Category = "Всё для гитар > Гитарные усилители и кабинеты";
+                                grubber.AttrGroup = "Гитарное усиление";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Electric guitar heads from guitar-world");
+                                break;
+                            case "ebc":
+                                grubber.Category = "Всё для гитар > Басовые комбо";
+                                grubber.AttrGroup = "Гитарное усиление";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Electric bass combos from guitar-world");
+                                break;
+                            case "ebh":
+                                grubber.Category = "Всё для гитар > Басовые усилители и кабинеты";
+                                grubber.AttrGroup = "Гитарное усиление";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Electric guitar combos from guitar-world");
+                                break;
+                            case "egp":
+                                grubber.Category = "Всё для гитар > Педали эффектов";
+                                grubber.AttrGroup = "Гитарное усиление";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Electric guitar pedals from guitar-world");
+                                break;
+                            case "ebp":
+                                grubber.Category = "Всё для гитар > Педали эффектов";
+                                grubber.AttrGroup = "Гитарное усиление";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Electric bass pedals from guitar-world");
+                                break;
+                            case "ags":
+                                grubber.Category = "Всё для гитар > Струны для акустических гитар";
+                                grubber.AttrGroup = "Струны";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Acoustic strings from guitar-world");
+                                break;
+                            case "aguitars":
+                                grubber.Category = "Гитары > Акустические гитары";
+                                grubber.AttrGroup = "Акустические гитары";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Acoustic guitars from guitar-world");
+                                break;
+                            case "amps":
+                                grubber.Category = "Звуковое оборудование > Усилители";
+                                grubber.AttrGroup = "Усилители";
+                                grubber.imgPath = selected;
+                                Console.WriteLine("Amps from Amplifier");
+                                break;
+                            case "cguitars":
+                                grubber.Category = "Гитары > Классические гитары";
+                                grubber.AttrGroup = "Акустические гитары";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Classic guitars from guitar-world");
+                                break;
+                            case "cgs":
+                                grubber.Category = "Всё для гитар > Струны для классических гитар";
+                                grubber.AttrGroup = "Струны";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Classic strings from guitar-world");
+                                break;
+                            case "gcables":
+                                grubber.Category = "Всё для гитар > Гитарные провода";
+                                grubber.AttrGroup = "Коммутация";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Guitar cables from guitar-world");
+                                break;
+                            case "gcases":
+                                grubber.Category = "Всё для гитар > Чехлы и кейсы";
+                                grubber.AttrGroup = "Струны";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Bags & cases from guitar-world");
+                                break;
+                            case "gpickups":
+                                grubber.Category = "Всё для гитар > Звукосниматели";
+                                grubber.AttrGroup = "Звукосниматели";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Pickups from guitar-world");
+                                break;
+                            case "picks":
+                                grubber.Category = "Всё для гитар > Медиаторы";
+                                grubber.AttrGroup = "Медиаторы";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Picks from guitar-world");
+                                break;
+                            case "straps":
+                                grubber.Category = "Всё для гитар > Ремни";
+                                grubber.AttrGroup = "Ремни";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Straps from guitar-world");
+                                break;
+                            case "tuners":
+                                grubber.Category = "Всё для гитар > Тюнеры и метрономы";
+                                grubber.AttrGroup = "Тюнеры";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Tuners from guitar-world");
+                                break;
+
                         }
                         Console.WriteLine("-------------------" + count + "--------------------");
                         count++;

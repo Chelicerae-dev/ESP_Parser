@@ -7,9 +7,11 @@ using System.Text.RegularExpressions;
 
 namespace ESP_Parser
 {
-    public class GrubberEGCombos
+    public class GrubberEGCombos : GrubAmplifier
     {
-        public string grubImg(string Address)
+        string SiteAddress = "https://www.guitar-world.ru";
+
+        /*public string grubImg(string Address)
         {
             string LoadPage(string url)     //HtmlAgilityPack initial page load module
             {
@@ -73,7 +75,7 @@ namespace ESP_Parser
                 string addressTemp = "@" + addr;
                 return addressTemp.ToString();
             }
-            */
+            *//*
             var pageContent = LoadPage(addr);
             var document = new HtmlDocument();  //Creating new page to parse
             document.LoadHtml(pageContent);     //Creating new page to parse
@@ -393,10 +395,10 @@ namespace ESP_Parser
             ToCsv.name = name;
             ToCsv.model = model;
             ToCsv.price = price;
-            ToCsv.categories = "Гитары > Бас-гитары"; //для бас-гитар
+            ToCsv.categories = "Всё для гитар > Гитарные комбо"; //для бас-гитар
             ToCsv.quantity = 2;
             ToCsv.manufacturer = brand;
-            ToCsv.description = desc.InnerText;
+            ToCsv.description = desc.InnerHtml;
             /*ToCsv.attributes = @"Количество струн : " +  + "\n" +
                                     "Материал корпуса : " + trans.MyDecoding() + "\n" +
                                     "Бренд : " + brand + "\n" +
@@ -429,7 +431,7 @@ namespace ESP_Parser
              *Вес
              *Габариты
              *Прочее
-             */
+             *
             ToCsv.attributes_group = @"Гитарное усиление
 Гитарное усиление
 Гитарное усиление
@@ -453,7 +455,7 @@ namespace ESP_Parser
                 return ToCsv;
             }
             return ToCsv;
-        }
+        }*/
         public GrubberEGCombos()
         {
         }

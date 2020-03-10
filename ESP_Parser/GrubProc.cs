@@ -28,26 +28,6 @@ namespace ESP_Parser
         }
         public void GrubProccess(string variant)
         {
-            /*IList<CsvLine> records = new List<CsvLine>();
-            void WriteCsv(string selected)
-            {
-                    try
-                    {
-                        using (var sw = new StreamWriter(selected + ".csv", append: true))
-                        using (var cw = new CsvWriter(sw, CultureInfo.InvariantCulture))
-                        {
-                            cw.WriteRecords(records);
-                            records.Clear();
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                    }
-            }*/
-            //bool status = true;
-            //do
-            //{
                 switch (variant)
                 {
                     case "eguitars":
@@ -290,59 +270,6 @@ namespace ESP_Parser
                         }
                         WriteCsv("Mixers");
                         break;
-                /*case "mics":
-                    Console.WriteLine("Selected mics. Time to grub!");
-
-                    try
-                    {
-                        using (StreamReader sr = new StreamReader("MicsLinks.txt"))
-                        {
-                            int count = 1;
-                            string line;
-                            while ((line = sr.ReadLine()) != null)
-                            {
-                                GrubberMixers grubber = new GrubberMixers(line);
-                                Console.WriteLine("-------------------" + count + "--------------------");
-                                count++;
-                                Console.WriteLine(line);
-                                records.Add(grubber.Grub(line));
-                                string model = grubber.Grub(line).model;
-                                string img = grubber.grubImg(line);
-                                Console.WriteLine("Model is " + model + " and it goes to img");
-                                try
-                                {
-                                    using (WebClient client = new WebClient())
-                                    {
-                                        client.DownloadFile(img, @"/Users/olimpinz/Projects/ESP_Parser/ESP_Parser/bin/Debug/netcoreapp3.1/mics/" + model.Replace(" ", "").Replace("/", "") + ".png");
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    Console.WriteLine("Unable to download image");
-                                    Console.WriteLine(e.Message);
-                                    try
-                                    {
-                                        using (StreamWriter sw = new StreamWriter("imgLinks.txt", append: true))
-                                        {
-                                            sw.WriteLine(img);
-                                        }
-                                    }
-                                    catch (Exception f)
-                                    {
-                                        Console.WriteLine(f.Message);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.WriteLine("Error reading file");
-                        throw;
-                    }
-                    WriteCsv("Mics");
-                    break;*/
                 case "exit":
                         Console.WriteLine("Bye!");
                         //status = false;
@@ -359,7 +286,76 @@ namespace ESP_Parser
                     SubGrub monitors = new SubGrub("monitors");
                     monitors.Grub("monitors");
                     break;
-                }
+                case "egc":
+                    SubGrub egc = new SubGrub("egc");
+                    egc.Grub("egc");
+                    break;
+                case "egh":
+                    SubGrub egh = new SubGrub("egh");
+                    egh.Grub("egh");
+                    goto case "ebc";
+                case "ebc":
+                    SubGrub ebc = new SubGrub("ebc");
+                    ebc.Grub("ebc");
+                    goto case "ebh";
+                case "ebh":
+                    SubGrub ebh = new SubGrub("ebh");
+                    ebh.Grub("ebh");
+                    goto case "egp";
+                case "egp":
+                    SubGrub egp = new SubGrub("egp");
+                    egp.Grub("egp");
+                    goto case "ebp";
+                case "ebp":
+                    SubGrub ebp = new SubGrub("ebp");
+                    ebp.Grub("ebp");
+                    break;
+                case "ags":
+                    SubGrub ags = new SubGrub("ags");
+                    ags.Grub("ags");
+                    break;
+                case "aguitars":
+                    SubGrub aguitars = new SubGrub("aguitars");
+                    aguitars.Grub("aguitars");
+                    break;
+                case "amps":
+                    SubGrub amps = new SubGrub("amps");
+                    amps.Grub("amps");
+                    break;
+                case "cgs":
+                    SubGrub cgs = new SubGrub("cgs");
+                    cgs.Grub("cgs");
+                    break;
+                case "cguitars":
+                    SubGrub cguitars = new SubGrub("cguitars");
+                    cguitars.Grub("cguitars");
+                    break;
+                case "gcables":
+                    SubGrub gcables = new SubGrub("gcables");
+                    gcables.Grub("gcables");
+                    break;
+                case "gcases":
+                    SubGrub gcases = new SubGrub("gcases");
+                    gcases.Grub("gcases");
+                    break;
+                case "gpickups":
+                    SubGrub gpickups = new SubGrub("gpickups");
+                    gpickups.Grub("gpickups");
+                    break;
+                case "picks":
+                    SubGrub picks = new SubGrub("picks");
+                    picks.Grub("picks");
+                    break;
+                case "straps":
+                    SubGrub straps = new SubGrub("straps");
+                    straps.Grub("straps");
+                    break;
+                case "tuners":
+                    SubGrub tuners = new SubGrub("tuners");
+                    tuners.Grub("tuners");
+                    break;
+
+            }
             //}
             //while (status == true);
         }

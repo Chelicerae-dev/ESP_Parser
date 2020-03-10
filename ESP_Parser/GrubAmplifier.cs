@@ -12,7 +12,54 @@ namespace ESP_Parser
     public class GrubAmplifier
     {
         public string addr { get; set; }
-        string LoadPage(string addr)     //HtmlAgilityPack initial page load module
+        public string Category { get; set; }     //Goods category 
+        public string AttrGroup { get; set; }    //goes to Attributes_Group in CSV
+        public string imgPath { get; set; }         //goes to image path in csv
+        //
+        public string SiteAddress { get; set; }
+        protected string TableNodeXPath { get; set; }
+        protected string SpecNameNodeXPath { get; set; }
+        protected string SpecValueNodeXPath { get; set; }
+        protected string BrandNodeXPath { get; set; }
+        protected string DescNodeXPath { get; set; }
+        protected string FeaturesNodeXpath { get; set; }
+        protected string PriceNodeXPath { get; set; }
+        protected string ModelNodeXPath { get; set; }
+        protected string NameNodeXPath { get; set; }
+        protected string NodeByIdXPath { get; set; }
+        public void SiteSelect(string site)
+        {
+            switch (site)
+                {
+                case "amplifier": 
+                    SiteAddress = "https://www.amplifier.ru";
+                    TableNodeXPath = "//table[@class=\"shop_attributes\"]";
+                    SpecNameNodeXPath = "tr/td[@itemprop=\"name\"]";
+                    SpecValueNodeXPath = "tr/td[@itemprop=\"value\"]";
+                    BrandNodeXPath = "//b[@id=\"prodbrand\"]";
+                    DescNodeXPath = "tab-fullDescriptionProd";
+                    FeaturesNodeXpath = "tab-featuresProd";
+                    PriceNodeXPath = "//span[@itemprop=\"price\"]";
+                    ModelNodeXPath = "//span[@itemprop=\"model\"]";
+                    NameNodeXPath = "//h1[@id=\"prodtitle\"]";
+                    NodeByIdXPath = "//div[@id=\"";
+                    break;
+                case "guitar-world":
+                    SiteAddress = "https://www.guitar-world.ru";
+                    TableNodeXPath = "//table[@class=\"specificProd\"]"; //
+                    SpecNameNodeXPath = "tr/th[@itemprop=\"name\"]";    //
+                    SpecValueNodeXPath = "tr/td[@itemprop=\"value\"]";  //
+                    BrandNodeXPath = "//div[label=\"Производитель:\"]/p";   //
+                    DescNodeXPath = "descr";    //
+                    FeaturesNodeXpath = "tab-featuresProd"; //???
+                    PriceNodeXPath = "//span[@class=\"product-price\"]"; //
+                    ModelNodeXPath = "//div[label=\"Артикул:\"]/p";     //
+                    NameNodeXPath = "//div[@class=\"header-for-light\"]/h1";  //header-for-light
+                    NodeByIdXPath = "//div[@id=\"";
+                    break;
+            }   
+        }
+        protected string LoadPage(string addr)     //HtmlAgilityPack initial page load module
         {
             try
             {
@@ -41,19 +88,19 @@ namespace ESP_Parser
                 throw;
             }
         }
-        public string Category { get; set; }     //Goods category 
-        public string AttrGroup { get; set; }    //goes to Attributes_Group in CSV
-        public string imgPath { get; set; }         //goes to image path in csv
-        public string grubImg(string addr)
+
+
+        public virtual string grubImg(string addr)
         {
             var pageContent = LoadPage(addr);
             var document = new HtmlDocument();  //Creating new page to parse
             document.LoadHtml(pageContent);     //Creating new page to parse
             var nodeImgAddr = document.DocumentNode.SelectSingleNode("//img[@class=\"image_0\"]");
-            string imgLink = "https://www.amplifier.ru" + nodeImgAddr.GetAttributeValue("src", "default");
+            string imgLink = SiteAddress + nodeImgAddr.GetAttributeValue("src", "default");
             return imgLink;
         }
-        public string[] Grub() 
+
+        public virtual string[] Grub() 
         {
             string[] temp = new string[8];
             var pageContent = LoadPage(addr);
@@ -62,7 +109,7 @@ namespace ESP_Parser
 
             HtmlNode grubId(string id)          //Guitar-World description node
             {
-                var grubberId = document.DocumentNode.SelectSingleNode("//div[@id=\"" + id + "\"]");
+                var grubberId = document.DocumentNode.SelectSingleNode(NodeByIdXPath + id + "\"]");
                 return grubberId;
             }
                        ////// Full specs table below
@@ -70,9 +117,9 @@ namespace ESP_Parser
             {
                 try
                 {
-                    var TableNode = document.DocumentNode.SelectSingleNode("//table[@class=\"shop_attributes\"]").SelectSingleNode("tbody");
-                    var SpecName = TableNode.SelectNodes("tr/td[@itemprop=\"name\"]");
-                    var SpecValue = TableNode.SelectNodes("tr/td[@itemprop=\"value\"]");
+                    var TableNode = document.DocumentNode.SelectSingleNode(TableNodeXPath).SelectSingleNode("tbody");
+                    var SpecName = TableNode.SelectNodes(SpecNameNodeXPath);
+                    var SpecValue = TableNode.SelectNodes(SpecValueNodeXPath);
                     int i = 0;
                     foreach (HtmlNode count in SpecName)
                     {
@@ -82,9 +129,23 @@ namespace ESP_Parser
                 }
                 catch
                 {
-                    Console.WriteLine("No specs!");
+                    try
+                    {
+                        var TableNode = document.DocumentNode.SelectSingleNode(TableNodeXPath).SelectSingleNode("tbody");
+                        var SpecName = TableNode.SelectNodes("tr/td/h5");
+                        int i = 0;
+                        foreach (HtmlNode count in SpecName)
+                        {
+                            grubSpecs.Add("Особенности : " + Regex.Replace(SpecName[i].InnerText, @"^\s+|\s+$|\n", ""));
+                            i++;
+                        }
+                    }
+                    catch
+                    {
+                        Console.WriteLine("No specs!");
+                    }
                 }
-            }
+            }   
             string Specs()  //turning specs list into string
             {
                 string SpecsTemp = "";
@@ -108,16 +169,16 @@ namespace ESP_Parser
             }
             string grubBrand()       //getting brand
             {
-                var nodeBrand = document.DocumentNode.SelectSingleNode("//b[@id=\"prodbrand\"]");
+                var nodeBrand = document.DocumentNode.SelectSingleNode(BrandNodeXPath);
                 //Console.WriteLine(nodeBrand.InnerText);
                 return nodeBrand.InnerText;
             }
-            var desc = grubId("tab-fullDescriptionProd");         //var with "description" part
+            var desc = grubId(DescNodeXPath);         //var with "description" part
             HtmlNode featMethod()
             {
                 try
                 {
-                    var temp = grubId("tab-featuresProd");
+                    var temp = grubId(FeaturesNodeXpath);
                     return temp;
                 }
                 catch
@@ -126,29 +187,66 @@ namespace ESP_Parser
                 }
             }
             var feat = featMethod();
-            string grubPrice()       //itemprop = "price" for Amplifier.ru
+            string grubPrice()       //getting price
             {
-                try
-                {
-                    var nodePrice = document.DocumentNode.SelectSingleNode("//span[@itemprop=\"price\"]");
-                    return nodePrice.InnerText.Replace("\"", "").Replace(" ", "");
-                }
-                catch
-                {
-                    Console.WriteLine("Unable to grub price!");
-                    return "";
-                }
+                    if (SiteAddress == "https://www.amplifier.ru")
+                    {
+                            try
+                            {
+                                var nodePrice = document.DocumentNode.SelectSingleNode(PriceNodeXPath);
+                                return nodePrice.InnerText.Replace("\"", "").Replace(" ", "");
+                            }
+                            catch
+                            {
+                                Console.WriteLine("Unable to grub price!");
+                                return "";
+                            }
+                    }
+                    else // if (SiteAddress == "https://www.guitar-world.ru")   //commented in case there'll be more sites
+                    {
+                            try
+                            {
+                                var nodePrice = document.DocumentNode.SelectSingleNode(PriceNodeXPath);
+                                var nodeCheck = nodePrice.ChildNodes;
+                                //Console.WriteLine(nodeCheck.Count);
+                                //Console.WriteLine(nodeCheck);
+                                switch (nodeCheck.Count)
+                                {
+                                    case 1:
+                                        //Console.WriteLine(nodePrice);                 //single span (no discount)
+                                        string textPrice = nodePrice.InnerText;
+                                        //Console.WriteLine(textPrice);
+                                        string temp = Regex.Replace(                  //removing spaces
+                                            textPrice, @"\s|руб\.", "");
+                                        return temp;              //removing letters
 
+                                    case 3:                                           //multiple spans (discount)
+                                        var nodeSCheck = nodePrice.FirstChild.NextSibling;
+                                        string textDPrice = nodeSCheck.InnerText;
+                                        //Console.WriteLine(textDPrice);
+                                        string tempD = Regex.Replace(                  //removing spaces
+                                            textDPrice, @"\s|руб\.", "");
+                                        return tempD;              //removing letters
+                                    default:
+                                        return "";
+                                }
+                            }
+                            catch
+                            {
+                                Console.WriteLine("Unable to grub price!");
+                                return "";
+                            }
+                }
             }
             string grubModel()       //itemprop = "model" for Amplifier
             {
-                var nodeModel = document.DocumentNode.SelectSingleNode("//span[@itemprop=\"model\"]");
+                var nodeModel = document.DocumentNode.SelectSingleNode(ModelNodeXPath);
                 //Console.WriteLine(nodeModel.InnerText);
                 return nodeModel.InnerText;
             }
             string grubName()            //h1 id = "prodtitle" for Amplifier
             {
-                var nodeName = document.DocumentNode.SelectSingleNode("//h1[@id=\"prodtitle\"]");
+                var nodeName = document.DocumentNode.SelectSingleNode(NameNodeXPath);
                 //Console.WriteLine(nodeName.InnerText);
                 return Regex.Replace(              //removing whitespaces
                     nodeName.InnerText, @"^\s+|\s+$", "");
