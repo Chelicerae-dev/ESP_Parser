@@ -173,7 +173,19 @@ namespace ESP_Parser
                 //Console.WriteLine(nodeBrand.InnerText);
                 return nodeBrand.InnerText;
             }
-            var desc = grubId(DescNodeXPath);         //var with "description" part
+            HtmlNode desc()
+            {
+                try
+                {
+                    var temp = grubId(DescNodeXPath);         //var with "description" part
+                    return temp;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
             HtmlNode featMethod()
             {
                 try
@@ -260,13 +272,17 @@ namespace ESP_Parser
             temp[1] = grubModel();
             temp[2] = Regex.Replace(grubPrice(), @"\s|р\.", "");
             temp[3] = brand;
-            if (feat != null)
+            if (desc() != null && feat != null)
             {
-                temp[4] = desc.InnerHtml + "\n<h3>Особенности</h3>\n" + feat.InnerHtml;
+                temp[4] = desc().InnerHtml + "\n<h3>Особенности</h3>\n" + feat.InnerHtml;
             }
-            else;
+            else if (desc() != null)
             {
-                temp[4] = desc.InnerHtml;
+                temp[4] = desc().InnerHtml;
+            }
+            else
+            {
+                temp[4] = "";
             }
             temp[5] = (Specs() != null) ? trans.MyDecoding(Specs()) : "";
             temp[6] = attr_group();

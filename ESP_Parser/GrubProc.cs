@@ -313,43 +313,43 @@ namespace ESP_Parser
                 case "ags":
                     SubGrub ags = new SubGrub("ags");
                     ags.Grub("ags");
-                    break;
+                    goto case "aguitars";
                 case "aguitars":
                     SubGrub aguitars = new SubGrub("aguitars");
                     aguitars.Grub("aguitars");
-                    break;
+                    goto case "amps";
                 case "amps":
                     SubGrub amps = new SubGrub("amps");
                     amps.Grub("amps");
-                    break;
+                    goto case "cgs";
                 case "cgs":
                     SubGrub cgs = new SubGrub("cgs");
                     cgs.Grub("cgs");
-                    break;
+                    goto case "cguitars";
                 case "cguitars":
                     SubGrub cguitars = new SubGrub("cguitars");
                     cguitars.Grub("cguitars");
-                    break;
+                    goto case "gcables";
                 case "gcables":
                     SubGrub gcables = new SubGrub("gcables");
                     gcables.Grub("gcables");
-                    break;
+                    goto case "gcases";
                 case "gcases":
                     SubGrub gcases = new SubGrub("gcases");
                     gcases.Grub("gcases");
-                    break;
+                    goto case "gpickups";
                 case "gpickups":
                     SubGrub gpickups = new SubGrub("gpickups");
                     gpickups.Grub("gpickups");
-                    break;
+                    goto case "picks";
                 case "picks":
                     SubGrub picks = new SubGrub("picks");
                     picks.Grub("picks");
-                    break;
+                    goto case "straps";
                 case "straps":
                     SubGrub straps = new SubGrub("straps");
                     straps.Grub("straps");
-                    break;
+                    goto case "tuners";
                 case "tuners":
                     SubGrub tuners = new SubGrub("tuners");
                     tuners.Grub("tuners");
