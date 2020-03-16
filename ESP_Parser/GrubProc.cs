@@ -31,88 +31,57 @@ namespace ESP_Parser
                 switch (variant)
                 {
                     case "eguitars":
-                        Console.WriteLine("Selected electric guitars. Time to grub!");
+                    SubGrub eguitars = new SubGrub("eguitars");
+                    eguitars.Grub("eguitars");
+                    break;
 
-                        try
+                /*Console.WriteLine("Selected electric guitars. Time to grub!");
+                 * try
+                {
+                    using (StreamReader sr = new StreamReader("EGuitarsLinks.txt"))
+                    {
+                        string line;
+                        while ((line = sr.ReadLine()) != null)
                         {
-                            using (StreamReader sr = new StreamReader("EGuitarsLinks.txt"))
-                            {
-                                string line;
-                                while ((line = sr.ReadLine()) != null)
-                                {
-                                    GrubberEGuitars grubber = new GrubberEGuitars(line);
+                            GrubberEGuitars grubber = new GrubberEGuitars(line);
 
-                                    Console.WriteLine(line);
-                                    records.Add(grubber.Grub(line));
-                                    string model = grubber.Grub(line).model;
-                                    string img = grubber.grubImg(line);
-                                    try
-                                    {
-                                        using (WebClient client = new WebClient())
-                                        {
-                                            client.DownloadFile(img, @"/Users/olimpinz/Projects/ESP_Parser/ESP_Parser/bin/Debug/netcoreapp3.1/eguitars/" + model.Replace(" ", "").Replace("/", "") + ".png");
-                                        }
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Console.WriteLine("Unable to download image");
-                                        Console.WriteLine(e.Message);
-                                    }
+                            Console.WriteLine(line);
+                            records.Add(grubber.Grub(line));
+                            string model = grubber.Grub(line).model;
+                            string img = grubber.grubImg(line);
+                            try
+                            {
+                                using (WebClient client = new WebClient())
+                                {
+                                    client.DownloadFile(img, @"/Users/olimpinz/Projects/ESP_Parser/ESP_Parser/bin/Debug/netcoreapp3.1/eguitars/" + model.Replace(" ", "").Replace("/", "") + ".png");
                                 }
                             }
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e.Message);
-                            Console.WriteLine("Error reading file");
-                            throw;
-                        }
-                        WriteCsv("EGuitars");
-                        break;
-                        //Console.ReadLine();
-                    case "ebass":
-                        Console.WriteLine("Selected electric basses. Time to grub!");
-
-                        try
-                        {
-                            using (StreamReader sr = new StreamReader("EBassLinks.txt"))
+                            catch (Exception e)
                             {
-                                int count = 1;
-                                string line;
-                                while ((line = sr.ReadLine()) != null)
-                                {
-                                    GrubberEBass grubber = new GrubberEBass(line);
-                                    Console.WriteLine(count);
-                                    count++;
-                                    Console.WriteLine(line);
-                                    records.Add(grubber.Grub(line));
-                                    string model = grubber.Grub(line).model;
-                                    string img = grubber.grubImg(line);
-                                    try
-                                    {
-                                        using (WebClient client = new WebClient())
-                                        {
-                                            client.DownloadFile(img, @"/Users/olimpinz/Projects/ESP_Parser/ESP_Parser/bin/Debug/netcoreapp3.1/ebass/" + model.Replace(" ", "").Replace("/", "") + ".png");
-                                        }
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Console.WriteLine("Unable to download image");
-                                        Console.WriteLine(e.Message);
-                                    }
-                                }
+                                Console.WriteLine("Unable to download image");
+                                Console.WriteLine(e.Message);
                             }
                         }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e.Message);
-                            Console.WriteLine("Error reading file");
-                            throw;
-                        }
-                        WriteCsv("EBass");
-                        break;
-                    case "ls":
-                        Console.WriteLine("Selected loudspeaker systems. Time to grub!");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine("Error reading file");
+                    throw;
+                }
+                WriteCsv("EGuitars");
+                break;*/
+                //Console.ReadLine();
+                case "ebass":
+                    SubGrub ebass = new SubGrub("ebass");
+                    ebass.Grub("ebass");
+                    break;
+                case "ls":
+                    SubGrub ls = new SubGrub("ls");
+                    ls.Grub("ls");
+                    break;
+                        /*Console.WriteLine("Selected loudspeaker systems. Time to grub!");
 
                         try
                         {
@@ -163,117 +132,19 @@ namespace ESP_Parser
                             throw;
                         }
                         WriteCsv("LS");
-                        break;
-                    case "pls":
-                        Console.WriteLine("Selected passive loudspeaker systems. Time to grub!");
-
-                        try
-                        {
-                            using (StreamReader sr = new StreamReader("PLSLinks.txt"))
-                            {
-                                int count = 1;
-                                string line;
-                                while ((line = sr.ReadLine()) != null)
-                                {
-                                    GrubberPassiveLoudspeakers grubber = new GrubberPassiveLoudspeakers(line);
-                                    Console.WriteLine("-------------------" + count + "--------------------");
-                                    count++;
-                                    Console.WriteLine(line);
-                                    records.Add(grubber.Grub(line));
-                                    string model = grubber.Grub(line).model;
-                                    string img = grubber.grubImg(line);
-                                    //Console.WriteLine("Model is " + model + " and it goes to img");
-                                    try
-                                    {
-                                        using (WebClient client = new WebClient())
-                                        {
-                                            client.DownloadFile(img, @"/Users/olimpinz/Projects/ESP_Parser/ESP_Parser/bin/Debug/netcoreapp3.1/pls/" + model.Replace(" ", "").Replace("/", "") + ".png");
-                                        }
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Console.WriteLine("Unable to download image");
-                                        Console.WriteLine(e.Message);
-                                        try
-                                        {
-                                            using (StreamWriter sw = new StreamWriter("imgLinks.txt", append: true))
-                                            {
-                                                sw.WriteLine(img);
-                                            }
-                                        }
-                                        catch (Exception f)
-                                        {
-                                            Console.WriteLine(f.Message);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e.Message);
-                            Console.WriteLine("Error reading file");
-                            throw;
-                        }
-                        WriteCsv("PLS");
-                        return;
-                    case "mixers":
-                        Console.WriteLine("Selected mixers. Time to grub!");
-
-                        try
-                        {
-                            using (StreamReader sr = new StreamReader("MixersLinks.txt"))
-                            {
-                                int count = 1;
-                                string line;
-                                while ((line = sr.ReadLine()) != null)
-                                {
-                                    GrubberMixers grubber = new GrubberMixers(line);
-                                    Console.WriteLine("-------------------" + count + "--------------------");
-                                    count++;
-                                    Console.WriteLine(line);
-                                    records.Add(grubber.Grub(line));
-                                    string model = grubber.Grub(line).model;
-                                    string img = grubber.grubImg(line);
-                                    Console.WriteLine("Model is " + model + " and it goes to img");
-                                    try
-                                    {
-                                        using (WebClient client = new WebClient())
-                                        {
-                                            client.DownloadFile(img, @"/Users/olimpinz/Projects/ESP_Parser/ESP_Parser/bin/Debug/netcoreapp3.1/mixers/" + model.Replace(" ", "").Replace("/", "") + ".png");
-                                        }
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Console.WriteLine("Unable to download image");
-                                        Console.WriteLine(e.Message);
-                                        try
-                                        {
-                                            using (StreamWriter sw = new StreamWriter("imgLinks.txt", append: true))
-                                            {
-                                                sw.WriteLine(img);
-                                            }
-                                        }
-                                        catch (Exception f)
-                                        {
-                                            Console.WriteLine(f.Message);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e.Message);
-                            Console.WriteLine("Error reading file");
-                            throw;
-                        }
-                        WriteCsv("Mixers");
-                        break;
+                        break;*/
+                case "pls":
+                    SubGrub pls = new SubGrub("pls");
+                    pls.Grub("pls");
+                    break;
+                case "mixers":
+                    SubGrub mixers = new SubGrub("mixers");
+                    mixers.Grub("mixers");
+                    break;
                 case "exit":
                         Console.WriteLine("Bye!");
                         //status = false;
-                        return;
+                        break;
                 case "mics":
                     SubGrub mics = new SubGrub("mics");
                     mics.Grub("mics");
@@ -337,7 +208,7 @@ namespace ESP_Parser
                 case "gcases":
                     SubGrub gcases = new SubGrub("gcases");
                     gcases.Grub("gcases");
-                    goto case "gpickups";
+                    break;
                 case "gpickups":
                     SubGrub gpickups = new SubGrub("gpickups");
                     gpickups.Grub("gpickups");
@@ -349,10 +220,42 @@ namespace ESP_Parser
                 case "straps":
                     SubGrub straps = new SubGrub("straps");
                     straps.Grub("straps");
-                    goto case "tuners";
+                    break;
                 case "tuners":
                     SubGrub tuners = new SubGrub("tuners");
                     tuners.Grub("tuners");
+                    break;
+                case "egs":
+                    SubGrub egs = new SubGrub("egs");
+                    egs.Grub("egs");
+                    break;
+                case "hp":
+                    SubGrub hp = new SubGrub("hp");
+                    hp.Grub("hp");
+                    goto case "conf";
+                case "conf":
+                    SubGrub conf = new SubGrub("conf");
+                    conf.Grub("conf");
+                    goto case "ibp";
+                case "ibp":
+                    SubGrub ibp = new SubGrub("ibp");
+                    ibp.Grub("ibp");
+                    goto case "lss";
+                case "lss":
+                    SubGrub lss = new SubGrub("lss");
+                    lss.Grub("lss");
+                    goto case "speakers";
+                case "speakers":
+                    SubGrub speakers = new SubGrub("speakers");
+                    speakers.Grub("speakers");
+                    break;
+                case "pop":
+                    SubGrub pop = new SubGrub("pop");
+                    pop.Grub("pop");
+                    break;
+                case "casioep":
+                    SubGrub casioep = new SubGrub("casioep");
+                    casioep.Grub("casioep");
                     break;
 
             }

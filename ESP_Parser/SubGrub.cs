@@ -15,7 +15,8 @@ namespace ESP_Parser
         {
             try
             {
-                using (var sw = new StreamWriter(selected + ".csv", append: true))
+                //using (var sw = new StreamWriter(selected + ".csv", append: true))        //original mono-csv writer
+                using (var sw = new StreamWriter("toVostorg.csv", append: false))
                 using (var cw = new CsvWriter(sw, CultureInfo.InvariantCulture))
                 {
                     cw.WriteRecords(records);
@@ -42,35 +43,47 @@ namespace ESP_Parser
                         GrubAmplifier grubber = new GrubAmplifier();
                         switch (selected)
                         {
+                            case "eguitars":
+                                grubber.Category = "Гитары > Электрогитары";
+                                grubber.AttrGroup = "Гитары";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                break;
                             case "ls":
                                 grubber.Category = "Звуковое оборудование > Активные акустические системы";
                                 grubber.AttrGroup = "Акустические системы";
                                 grubber.imgPath = selected;
+                                grubber.SiteSelect("amplifier");
                                 break;
                             case "pls":
                                 grubber.Category = "Звуковое оборудование > Пассивные акустические системы";
                                 grubber.AttrGroup = "Акустические системы";
                                 grubber.imgPath = selected;
+                                grubber.SiteSelect("amplifier");
                                 break;
                             case "mixers":
                                 grubber.Category = "Звуковое оборудование > Микшеры";
                                 grubber.AttrGroup = "Микшеры";
                                 grubber.imgPath = selected;
+                                grubber.SiteSelect("amplifier");
                                 break;
                             case "mics":
                                 grubber.Category = "Микрофоны и радиосистемы";
                                 grubber.AttrGroup = "Микрофоны";
                                 grubber.imgPath = selected;
+                                grubber.SiteSelect("amplifier");
                                 break;
                             case "headphones":
                                 grubber.Category = "Звуковое оборудование > Наушники";
                                 grubber.AttrGroup = "Наушники";
                                 grubber.imgPath = selected;
+                                grubber.SiteSelect("amplifier");
                                 break;
                             case "monitors":
                                 grubber.Category = "Студийное оборудование > Студийные мониторы";
                                 grubber.AttrGroup = "Студийные мониторы";
                                 grubber.imgPath = selected;
+                                grubber.SiteSelect("amplifier");
                                 break;
                             case "egc":
                                 grubber.Category = "Всё для гитар > Гитарные комбо";
@@ -132,6 +145,7 @@ namespace ESP_Parser
                                 grubber.Category = "Звуковое оборудование > Усилители";
                                 grubber.AttrGroup = "Усилители";
                                 grubber.imgPath = selected;
+                                grubber.SiteSelect("amplifier");
                                 Console.WriteLine("Amps from Amplifier");
                                 break;
                             case "cguitars":
@@ -190,7 +204,62 @@ namespace ESP_Parser
                                 grubber.SiteSelect("guitar-world");
                                 Console.WriteLine("Tuners from guitar-world");
                                 break;
-
+                            case "egs":
+                                grubber.Category = "Всё для гитар > Струны для электрогитар";
+                                grubber.AttrGroup = "Струны";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("guitar-world");
+                                Console.WriteLine("Electric guitar strings from guitar-world");
+                                break;
+                            case "lss":
+                                grubber.Category = "Звуковое оборудование > Стойки для акустических систем";
+                                grubber.AttrGroup = "Стойки";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("amplifier");
+                                Console.WriteLine("Loudspeaker stands from amplifier");
+                                break;
+                            case "speakers":
+                                grubber.Category = "Звуковое оборудование > Динамики";
+                                grubber.AttrGroup = "Динамики";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("amplifier");
+                                Console.WriteLine("Speakers from amplifier");
+                                break;
+                            case "conf":
+                                grubber.Category = "Звуковое оборудование > Конференц-системы";
+                                grubber.AttrGroup = "Конференц-системы";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("amplifier");
+                                Console.WriteLine("Conf systems from amplifier");
+                                break;
+                            case "ibp":
+                                grubber.Category = "Звуковое оборудование > ИБП и сетевые фильтры";
+                                grubber.AttrGroup = "ИБП и сетевые фильтры";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("amplifier");
+                                Console.WriteLine("UPCs from amplifier");
+                                break;
+                            case "hp":
+                                grubber.Category = "Звуковое оборудование > Наушники";
+                                grubber.AttrGroup = "Наушники";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("amplifier");
+                                Console.WriteLine("Headphones from amplifier");
+                                break;
+                            case "pop":
+                                grubber.Category = "Микрофоны";
+                                grubber.AttrGroup = "Поп-фильры";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("amplifier");
+                                Console.WriteLine("Pop-filters from amplifier");
+                                break;
+                            case "casioep":
+                                grubber.Category = "Клавишные инструменты > Цифровые пианино Casio";
+                                grubber.AttrGroup = "Цифровые пианино";
+                                grubber.imgPath = selected;
+                                grubber.SiteSelect("grandpianos");
+                                Console.WriteLine("Casio e-pianos from grandpianos");
+                                break;
                         }
                         Console.WriteLine("-------------------" + count + "--------------------");
                         count++;
